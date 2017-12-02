@@ -18,6 +18,12 @@ def identity(n):
             I.g[i][i] = 1.0
         return I
 
+def dot_product(vector_one, vector_two):
+    new_vector = []
+    for i in range(len(vector_one)):
+        new_vector.append(vector_one[i] * vector_two[i])
+    return sum(new_vector)
+    
 class Matrix(object):
 
     # Constructor
@@ -52,7 +58,7 @@ class Matrix(object):
             raise(ValueError, "Cannot calculate the trace of a non-square matrix.")
         t = 0
         # TODO - your code here
-        for i in range(len(self)):
+        for i in range(self.h):
             t += self[i][i]
         return t
 
@@ -82,7 +88,7 @@ class Matrix(object):
                 for j in range(self.w):
                     inverse[i][j] *= scalar
         
-        return inverse
+        return Matrix(inverse)
                     
 
     def T(self):
@@ -90,13 +96,7 @@ class Matrix(object):
         Returns a transposed copy of this Matrix.
         """
         # TODO - your code here
-        transposition = []
-        for j in range(self.w):
-            row = []
-            for i in range(self.h):
-                row.append(0)
-            transposition.append(row)
-
+        transposition = zeroes(self.w, self.h)
         for i in range(self.h):
             for j in range(self.w):
                 transposition[j][i] = self.g[i][j]
@@ -137,11 +137,8 @@ class Matrix(object):
         return s
     
     def __len__(self):
-        """
-        I added this method so I can use "len" on matrices
-        """
         return self.h
-
+    
     def __add__(self,other):
         """
         Defines the behavior of the + operator
@@ -151,6 +148,12 @@ class Matrix(object):
         #   
         # TODO - your code here
         #
+        sum_ = zeroes(self.h, self.w)
+        for i in range(self.h):
+            for j in range(self.w):
+                sum_[i][j] = self.g[i][j] + other.g[i][j]
+                
+        return Matrix(sum_)
 
     def __neg__(self):
         """
@@ -167,7 +170,14 @@ class Matrix(object):
         #   
         # TODO - your code here
         #
-
+        neg = zeroes(self.h, self.w)
+        for i in range(self.h):
+            for j in range(self.w):
+                neg[i][j] = self.g[i][j] * -1
+                
+        return Matrix(neg)
+    
+    
     def __sub__(self, other):
         """
         Defines the behavior of - operator (as subtraction)
@@ -175,7 +185,13 @@ class Matrix(object):
         #   
         # TODO - your code here
         #
-
+        difference = zeroes(self.h, self.w)
+        for i in range(self.h):
+            for j in range(self.w):
+                difference[i][j] = self.g[i][j] - other.g[i][j]
+                
+        return Matrix(difference)    
+    
     def __mul__(self, other):
         """
         Defines the behavior of * operator (matrix multiplication)
@@ -183,6 +199,20 @@ class Matrix(object):
         #   
         # TODO - your code here
         #
+        m_rows = self.h
+        p_columns = other.w
+        product = []
+        other_T = other.T()
+        
+        for i in range(self.h):
+            row = []
+            for j in range(other_T.h):
+                row.append(dot_product(self[i], other_T[j]))
+            product.append(row)
+        return Matrix(product)
+      
+        
+        
 
     def __rmul__(self, other):
         """
@@ -197,8 +227,9 @@ class Matrix(object):
           0.0  2.0
         """
         if isinstance(other, numbers.Number):
-            pass
-            #   
-            # TODO - your code here
-            #
-            
+            scaled = zeroes(self.h, self.w)
+            for i in range(self.h):
+                for j in range(self.w):
+                    scaled[i][j] = self.g[i][j] * other
+
+            return Matrix(scaled)
